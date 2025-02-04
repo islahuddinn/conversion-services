@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Home</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      body {
+        font-family: "Roboto", sans-serif;
+        margin: 0;
+        padding: 0;
+        background-color: #f9f9fb;
+        color: #333;
+        line-height: 1.6;
+      }
+
+      header {
+        background-color: #35424a;
+        color: white;
+        text-align: center;
+        padding: 2rem 1rem;
+      }
+
+      header h1 {
+        font-size: 2rem;
+        margin: 0;
+      }
+
+      header p {
+        margin: 0.5rem 0 0;
+        font-size: 1rem;
+        color: #d1d1d1;
+      }
+
+      nav {
+        background-color: #222;
+        color: white;
+        padding: 1rem;
+        text-align: center;
+      }
+
+      nav a {
+        color: #ffffff;
+        text-decoration: none;
+        margin: 0 1rem;
+        font-weight: bold;
+        transition: color 0.3s ease;
+      }
+
+      nav a:hover {
+        color: #1abc9c;
+      }
+
+      .container {
+        padding: 2rem;
+        display: grid;
+        gap: 2rem;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        max-width: 1200px;
+        margin: 0 auto;
+      }
+
+      .card {
+        background: white;
+        border-radius: 10px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        overflow: hidden;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        display: flex;
+        flex-direction: column;
+      }
+
+      .card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+      }
+
+      .card-header {
+        background-color: #35424a;
+        color: white;
+        text-align: center;
+        padding: 1.2rem;
+        font-size: 1.3rem;
+        font-weight: 700;
+      }
+
+      .card-body {
+        padding: 1.5rem;
+        flex-grow: 1;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+      }
+
+      .card-body p {
+        font-size: 1rem;
+        margin-bottom: 1.5rem;
+        color: #555;
+      }
+
+      .card a {
+        text-decoration: none;
+        color: #35424a;
+        font-weight: bold;
+        padding: 0.8rem 1.5rem;
+        border: 2px solid #35424a;
+        border-radius: 5px;
+        text-align: center;
+        transition: background-color 0.3s ease, color 0.3s ease;
+      }
+
+      .card a:hover {
+        background-color: #35424a;
+        color: white;
+      }
+
+      footer {
+        text-align: center;
+        padding: 1rem;
+        background-color: #f1f1f1;
+        color: #555;
+        margin-top: 2rem;
+        font-size: 0.9rem;
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+      }
+
+      @media (max-width: 600px) {
+        .card-body p {
+          font-size: 0.9rem;
+        }
+
+        .card a {
+          font-size: 0.9rem;
+          padding: 0.6rem 1rem;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <h1>Conversion and Compression Service</h1>
+      <p>Explore the available tools and functionalities</p>
+    </header>
+    <nav>
+      <a href="/">Home</a>
+      <a href="/monitor">Monitor</a>
+      <a href="/api-docs">API Docs</a>
+      <a href="/status">Health Check</a>
+      <a href="/logs">Logs</a>
+      <a href="/link-analysis">M3U8 Analysis</a>
+      <a href="/cluster">Cluster</a>
+    </nav>
+    <div class="container">
+      <div class="card">
+        <div class="card-header">Monitor Status</div>
+        <div class="card-body">
+          <p>View live monitoring data and task statuses.</p>
+          <a href="/monitor">Go to Monitor</a>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-header">API Documentation</div>
+        <div class="card-body">
+          <p>Access the Swagger API documentation for this service.</p>
+          <a href="/api-docs">View API Docs</a>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-header">Status Check</div>
+        <div class="card-body">
+          <p>Check the health and metrics of the application server.</p>
+          <a href="/status">Perform Health Check</a>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-header">Logs Management</div>
+        <div class="card-body">
+          <p>Check and search the logs of the application server.</p>
+          <a href="/logs">Go To Logs Management</a>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-header">M3U8 Analysis</div>
+        <div class="card-body">
+          <p>Analyze and view details of M3U8 URLs.</p>
+          <a href="/link-analysis">Go To M3U8 Analysis</a>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-header">Cluster Management</div>
+        <div class="card-body">
+          <p>Monitor and manage cluster nodes effectively.</p>
+          <a href="/cluster">Go To Cluster Portal</a>
+        </div>
+      </div>
+    </div>
+    <footer>
+      &copy; 2024 Conversion and Compression Service. All rights reserved.
+    </footer>
+  </body>
+</html>

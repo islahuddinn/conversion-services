@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Today's Logs</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      /* General Styling */
+      body {
+        font-family: "Roboto", sans-serif;
+        line-height: 1.6;
+        margin: 0;
+        padding: 0;
+        background-color: #f4f4f9;
+        color: #333;
+      }
+
+      /* Header Styling */
+      header {
+        background-color: #333;
+        color: #fff;
+        padding: 20px;
+        text-align: center;
+      }
+
+      header h1 {
+        margin: 0;
+        font-size: 2rem;
+        font-weight: 700;
+      }
+
+      /* Main Content Styling */
+      main {
+        padding: 20px;
+        max-width: 1200px;
+        margin: 0 auto;
+      }
+
+      .log-container {
+        background: #1e1e2f;
+        color: #f1f1f1;
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        overflow: auto;
+        max-height: 75vh; /* Limit height for scrolling */
+      }
+
+      .log-container pre {
+        margin: 0;
+        font-family: "Courier New", monospace;
+        font-size: 0.9rem;
+        white-space: pre-wrap; /* Wrap long lines */
+        word-wrap: break-word; /* Break long words */
+      }
+
+      /* Footer Styling */
+      footer {
+        text-align: center;
+        margin-top: 20px;
+        color: #666;
+        font-size: 0.9rem;
+      }
+
+      footer a {
+        color: #0077cc;
+        text-decoration: none;
+      }
+
+      footer a:hover {
+        text-decoration: underline;
+      }
+    </style>
+    <script>
+      setInterval(() => {
+        window.location.reload();
+      }, 40000);
+    </script>
+  </head>
+  <body>
+    <header>
+      <h1>Today's ( <%= today %> ) Logs</h1>
+      <h2>Last 1000 lines</h2>
+
+      <p>Auto-refreshes every 40 seconds</p>
+    </header>
+    <main>
+      <div class="log-container">
+        <pre><%= logContent %></pre>
+      </div>
+    </main>
+  </body>
+</html>
