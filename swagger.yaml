@@ -1,0 +1,223 @@
+openapi: 3.0.0
+info:
+  title: Conversion Service API
+  version: 1.0.0
+  description: API documentation for the Conversion Service
+servers:
+  - url: https://compression.api.climatechange.gay/
+    description: Production Server
+  - url: http://localhost:3000/
+    description: Development Server
+
+paths:
+  /admin/health:
+    get:
+      summary: Check server health
+      description: Returns a simple JSON response indicating that the server is running.
+      tags:
+        - Admin
+      responses:
+        200:
+          description: Server is up and running
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Server is Up!
+  /callback:
+    post:
+      summary: callback test endpoint ( using in callbackUrl for /convert API )
+      description: Accepts a callback request and returns the request body as a response.
+      tags:
+        - General
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+      responses:
+        200:
+          description: Request body echoed back
+          content:
+            application/json:
+              schema:
+                type: object
+  /followup/task/{id}:
+    get:
+      summary: Retrieve a task by ID
+      description: Fetches the task details by its ID.
+      tags:
+        - Task Management
+      parameters:
+        - in: path
+          name: id
+          required: true
+          description: The ID of the task to retrieve
+          schema:
+            type: integer
+            example: 1
+      responses:
+        200:
+          description: Task details
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                  status:
+                    type: string
+                  callbackUrl:
+                    type: string
+                  PostItems:
+                    type: array
+                    items:
+                      type: object
+                  createdAt:
+                    type: integer
+                  updatedAt:
+                    type: integer
+        404:
+          description: Task not found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Task not found.
+  /increase-concurrency:
+    post:
+      summary: Increase task queue concurrency
+      description: Increases the concurrency limit for the task queue.
+      tags:
+        - Queue Management
+      responses:
+        200:
+          description: Concurrency limit successfully increased
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  newLimit:
+                    type: integer
+                    description: The updated concurrency limit
+        400:
+          description: Invalid API key or bad request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  status:
+                    type: integer
+  /decrease-concurrency:
+    post:
+      summary: Decrease task queue concurrency
+      description: Decreases the concurrency limit for the task queue.
+      tags:
+        - Queue Management
+      responses:
+        200:
+          description: Concurrency limit successfully decreased
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  newLimit:
+                    type: integer
+                    description: The updated concurrency limit
+        400:
+          description: Invalid API key or bad request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  status:
+                    type: integer
+  /admin/restart:
+    post:
+      summary: Restart the application
+      description: Triggers a restart of the application by restarting all worker processes in the cluster. Requires authentication via `x-api-key`.
+      tags:
+        - Admin
+      parameters:
+        - in: header
+          name: x-api-key
+          required: true
+          schema:
+            type: string
+          description: API key for authentication
+      responses:
+        200:
+          description: Restart initiated successfully.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Restart initiated.
+                  status:
+                    type: integer
+                    example: 200
+        400:
+          description: Invalid request or unauthorized access.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Invalid API Key.
+                  status:
+                    type: integer
+                    example: 400
+  /convert:
+    post:
+      summary: Add a task to the queue
+      tags:
+        - Task Management
+      parameters:
+        - in: header
+          name: x-api-key
+          required: true
+          schema:
+            type: string
+          description: API key for authentication
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                Id:
+                  type: integer
+                  example: 1
+                PostItems:
+                  type: string
+                  example: '[{"Order": 0,"ThumNail": "http://s3stage.api.climatechange.gay/thumbnail-729a573e-71a8-4ea8-88ef-ff529d0a4697.png","Content": "http://s3stage.api.climatechange.gay/Snapinsta.app_video_E243227213A2CBCBD60F5DB7940F3295_video_dashinit-95e27c8b-6ceb-4c90-9e4d-c5fda7e5ec81.mp4","PostItemType": 2,"Width": 0,"Height": 0}]'
+                callbackUrl:
+                  type: string
+                  example: "http://example.com/callback"
+      responses:
+        200:
+          description: Task added to the queue
+        400:
+          description: Bad request

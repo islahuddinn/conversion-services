@@ -1,0 +1,108 @@
+workflow:
+  rules:
+    - if: '$CI_COMMIT_REF_NAME == "main"'
+    - if: '$CI_COMMIT_REF_NAME == "development"'
+
+stages:
+  - build
+  - deploy
+  - create_ami
+  - update_asg
+  - refresh_asg
+
+before_script:
+  - export AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID
+  - export AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY
+  - export DEBIAN_FRONTEND=noninteractive
+  - apt-get update -y && apt-get install -y sshpass unzip zip curl rabbitmq-server build-essential > /dev/null 2>&1
+  - curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+  - unzip awscliv2.zip > /dev/null 2>&1
+  - ./aws/install
+  - rm -rf awscliv2.zip
+  # Verify AWS CLI-installation
+  - aws --version
+
+build_job:
+  stage: build
+  image: node:22
+  script:
+    - zip -r $S3_ARTIFACT_NAME . > /dev/null 2>&1
+  artifacts:
+    paths:
+      - $S3_ARTIFACT_NAME
+  rules:
+    - if: '$CI_COMMIT_REF_NAME == "main"'
+    - if: '$CI_COMMIT_REF_NAME == "development"'
+  environment:
+    name: $CI_COMMIT_REF_NAME
+
+deploy_to_ec2:
+  stage: deploy
+  script:
+    # Check if artifactexists
+    - ls -l $S3_ARTIFACT_NAME
+
+    # Copy the artifact to the EC2 instance
+    - echo "$EC2_INSTANCE_PASSWORD,  $EC2_USER, $EC2_HOST"
+    - sshpass -p "qwertyadmin" scp -v -o StrictHostKeyChecking=no $S3_ARTIFACT_NAME "development@15.222.144.83:$ARTIFACT_LOCAL_PATH"
+    # Run deployment commands on the EC2instance
+    - |
+       sshpass -p "qwertyadmin" ssh -v -o StrictHostKeyChecking=no "development@15.222.144.83" <<'EOF'
+       set -x
+       rm -rf /home/development/conversion-service/build/
+       unzip -o /home/development/conversion_build_artifact.zip -d /home/development/conversion-service
+       echo "Current working directory: $(pwd)"
+       EOF
+  dependencies:
+    - build_job
+
+create_ami:
+  stage: create_ami
+  script:
+    - echo "Creating AMI..."
+    - |
+      AMI_ID=$(aws ec2 create-image --instance-id i-07a175b6bbef90b82 --name "new-compression-ami-$(date +%Y%m%d%H%M%S)" --no-reboot --query 'ImageId' --output text --region ca-central-1)
+      echo "Created AMI: $AMI_ID"
+    - echo "Waiting for AMI to be available..."
+    - aws ec2 wait image-available --image-id $AMI_ID --region ca-central-1
+    - echo "AMI $AMI_ID is now available."
+    - echo $AMI_ID > ami_id.txt
+  dependencies:
+    - deploy_to_ec2
+  artifacts:
+      paths:
+        - ami_id.txt
+
+update_asg:
+  stage: update_asg
+  script:
+    - echo "Updating Auto Scaling Group with new AMI..."
+    - AMI_ID=$(cat ami_id.txt)
+    - INSTANCE_TYPE="t2.large"
+    - |
+      aws ec2 create-launch-template-version \
+        --launch-template-name Compression-service \
+        --source-version 8 \
+        --version-description "Updated with AMI $AMI_ID and InstanceType $INSTANCE_TYPE" \
+        --launch-template-data '{"ImageId": "'"$AMI_ID"'", "InstanceType": "'"$INSTANCE_TYPE"'"}' \
+        --region ca-central-1
+    - echo "Auto Scaling Group updated with new AMI $AMI_ID and InstanceType $INSTANCE_TYPE."
+    
+  dependencies:
+    - create_ami
+
+refresh_asg:
+  stage: refresh_asg
+  script:
+    - echo "Refreshing Auto Scaling Group to replace instances with the new AMI..."
+    - aws autoscaling start-instance-refresh --auto-scaling-group-name compression-services --region        ca-central-1
+    - echo "Auto Scaling Group instance refresh started."
+    - sleep 300
+  rules:
+    - if: '$CI_COMMIT_REF_NAME == "main"'
+      when: manual
+    - if: '$CI_COMMIT_REF_NAME == "development"'
+  environment:
+    name: $CI_COMMIT_REF_NAME
+  dependencies:
+    - update_asg
